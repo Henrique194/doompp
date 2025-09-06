@@ -1,6 +1,10 @@
 include(ConfigureRcFile)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES
+    main.cpp
+    window.cpp
+    window.h
+)
 set(LIBS ${SDL2_LIBRARIES})
 
 if(WIN32)

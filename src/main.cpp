@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include "window.h"
 
 using std::domain_error;
 using std::ifstream;
@@ -278,5 +279,8 @@ class WadManager {
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     WadManager wad_manager;
     wad_manager.addWad("doom.wad");
+
+    Window window{};
+
     return EXIT_SUCCESS;
 }
