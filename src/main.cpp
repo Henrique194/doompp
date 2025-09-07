@@ -280,7 +280,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     WadManager wad_manager;
     wad_manager.addWad("doom.wad");
 
+    SDL_InitSubSystem(SDL_INIT_VIDEO);
     Window window{};
+
+    SDL_InitSubSystem(SDL_INIT_EVENTS);
+    auto quit{false};
+    while (!quit) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            quit = (event.type == SDL_QUIT);
+        }
+        SDL_Delay(16); // 60 FPS
+    }
 
     return EXIT_SUCCESS;
 }
