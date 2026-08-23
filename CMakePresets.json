@@ -2,44 +2,67 @@
     "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 21,
+        "minor": 31,
         "patch": 0
     },
     "configurePresets": [
         {
-            "name": "ninja-multi-vcpkg",
-            "displayName": "Ninja Multi-Config",
-            "description": "Base preset using Ninja Multi-Config with vcpkg toolchain",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "name": "ninja-multi",
+            "description": "Base preset using Ninja Multi-Config",
             "generator": "Ninja Multi-Config",
-            "toolchainFile": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
             "hidden": true
         },
         {
             "name": "debug",
-            "inherits": "ninja-multi-vcpkg",
-            "displayName": "Ninja Multi-Config (Debug)",
-            "binaryDir": "${sourceDir}/cmake-build-debug"
+            "displayName": "Configure (Debug)",
+            "inherits": "ninja-multi",
+            "binaryDir": "${sourceDir}/cmake-build-debug",
+            "installDir": "${sourceDir}/cmake-package-debug"
+        },
+        {
+            "name": "debug-vcpkg",
+            "displayName": "Configure (Debug w/vcpkg)",
+            "inherits": "debug",
+            "toolchainFile": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
         },
         {
             "name": "release",
-            "inherits": "ninja-multi-vcpkg",
-            "displayName": "Ninja Multi-Config (Release)",
-            "binaryDir": "${sourceDir}/cmake-build-release"
+            "displayName": "Configure (Release)",
+            "inherits": "ninja-multi",
+            "binaryDir": "${sourceDir}/cmake-build-release",
+            "installDir": "${sourceDir}/cmake-package-release"
+        },
+        {
+            "name": "release-vcpkg",
+            "displayName": "Configure (Release w/vcpkg)",
+            "inherits": "release",
+            "toolchainFile": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
         }
     ],
     "buildPresets": [
         {
             "name": "debug",
-            "configurePreset": "debug",
             "displayName": "Build (Debug)",
+            "configurePreset": "debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "debug-vcpkg",
+            "displayName": "Build (Debug w/vcpkg)",
+            "configurePreset": "debug-vcpkg",
             "configuration": "Debug"
         },
         {
             "name": "release",
-            "configurePreset": "release",
             "displayName": "Build (Release)",
+            "configurePreset": "release",
+            "configuration": "Release"
+        },
+        {
+            "name": "release-vcpkg",
+            "configurePreset": "release-vcpkg",
+            "displayName": "Build (Release w/vcpkg)",
             "configuration": "Release"
         }
-    ]
+   ]
 }

@@ -17,3 +17,12 @@ CMakeUserPresets.json
 
 # External projects
 *-prefix/
+
+# JetBrains IDE
+.idea
+
+# macOS
+.DS_Store
+
+# Game Data
+id1/
