@@ -17,8 +17,30 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "config.h"
+#pragma once
 
-int main() {
-    return 0;
-}
+#include "common/types.h"
+#include "cc/lexer.h"
+#include <string>
+
+class Driver {
+    enum RunFlag {
+        RF_LEX = 1,
+        RF_PARSE = 3,
+        RF_CODEGEN = 7,
+        RF_EMIT = 15,
+    };
+
+  public:
+    Driver(int argc, char* argv[]);
+    bool run(const char* filename);
+
+  private:
+    static void error(const char* fmt, ...);
+    bool setSrc(const char* filename);
+    bool runLexer();
+
+    u8 run_flag{};
+    std::string src{};
+    Lexer lexer{};
+};
