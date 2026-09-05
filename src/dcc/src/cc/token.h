@@ -23,11 +23,11 @@
 
 enum class TokenType {
     Invalid = -1,
+    ConstI32,
     Eof,
     Eq,
     Id,
     Int,
-    Literal,
     LBrace,
     LParen,
     RBrace,
@@ -42,8 +42,10 @@ struct Token {
     const char* sym;
 
     static const Token Invalid;
+    static const Token ConstI32;
     static const Token Eof;
     static const Token Eq;
+    static const Token Id;
     static const Token Int;
     static const Token LBrace;
     static const Token LParen;
@@ -55,9 +57,6 @@ struct Token {
 
     static const std::array<Token, 3> KEYWORDS;
     static const std::array<Token, 6> CHARS;
-
-    static Token Id(const char* sym);
-    static Token Literal(const char* sym);
 
     bool operator==(const Token& token) const;
     bool operator!=(const Token& token) const;

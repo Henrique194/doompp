@@ -12,7 +12,10 @@ add_subdirectory(libs/catch2)
 
 set(DCC_LIB "dcc-lib")
 set(DCC_SRC
+    src/cc/ast.cpp
+    src/cc/cc.cpp
     src/cc/lexer.cpp
+    src/cc/parser.cpp
     src/cc/token.cpp
     src/driver/driver.cpp
 )
@@ -23,7 +26,10 @@ add_executable(${PACKAGE_TARNAME} src/main.cpp)
 target_link_libraries(${PACKAGE_TARNAME} PRIVATE ${DCC_LIB})
 
 set(DCC_TESTS "dcc-tests")
-add_executable(${DCC_TESTS} tests/lexer.cpp)
+add_executable(${DCC_TESTS}
+    tests/lexer.cpp
+    tests/parser.cpp
+)
 target_link_libraries(${DCC_TESTS} PRIVATE ${DCC_LIB} Catch2::Catch2WithMain)
 
 if(MSVC)

@@ -22,7 +22,7 @@
 #include "common/types.h"
 #include "token.h"
 #include <string>
-#include <vector>
+#include <deque>
 
 class Lexer {
   public:
@@ -43,6 +43,7 @@ class Lexer {
     static bool isComment(const char* str);
 
     const char* src{nullptr};
-    u32 line{0};
-    std::vector<std::string> symbols;
+    u32 line{1};
+    // We need std::deque for pointer stability when creating tokens.
+    std::deque<std::string> symbols{512};
 };

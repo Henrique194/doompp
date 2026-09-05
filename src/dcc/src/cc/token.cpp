@@ -21,8 +21,10 @@
 #include <cstring>
 
 const Token Token::Invalid{TokenType::Invalid, nullptr};
+const Token Token::ConstI32{TokenType::ConstI32, "constant"};
 const Token Token::Eof{TokenType::Eof, ""};
 const Token Token::Eq{TokenType::Eq, "="};
+const Token Token::Id{TokenType::Id, "identifier"};
 const Token Token::Int{TokenType::Int, "int"};
 const Token Token::LBrace{TokenType::LBrace, "{"};
 const Token Token::LParen{TokenType::LParen, "("};
@@ -46,15 +48,6 @@ const std::array<Token, 6> Token::CHARS{
     Token::RParen,
     Token::Semicolon,
 };
-
-
-Token Token::Id(const char* sym) {
-    return Token{TokenType::Id, sym};
-}
-
-Token Token::Literal(const char* sym) {
-    return {TokenType::Literal, sym};
-}
 
 bool Token::operator==(const Token& token) const {
     if (type != token.type) {

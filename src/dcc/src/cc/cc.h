@@ -19,30 +19,26 @@
 
 #pragma once
 
-#include "common/types.h"
-#include "cc/cc.h"
-#include <string>
+#include "lexer.h"
+#include "parser.h"
+#include <vector>
 
-class Driver {
+class Compiler {
   public:
-    Driver(int argc, char* argv[]);
-    bool run(const char* filename);
+    bool runLexer(const char* src);
+    bool runParser(const char* src);
+    const std::vector<Token>& getTokens();
+    const AstProg& getProg();
+    const char* getErrorMsg() const;
 
   private:
-    enum RunLevel {
-        RL_LEX,
-        RL_PARSE,
-        RL_CODEGEN,
-        RL_EMIT,
-    };
+    void reset();
 
-    bool setSrc(const char* filename);
-    bool runLexer();
-    bool runParser();
-    void error(const char* fmt, ...) const;
+    const char* error_msg{""};
 
-    u8 run_level{0};
-    const char* filename{nullptr};
-    std::string src{};
-    Compiler compiler{};
+    Lexer lexer{};
+    std::vector<Token> tokens{};
+
+    Parser parser{};
+    AstProg prog{};
 };

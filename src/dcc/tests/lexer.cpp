@@ -18,24 +18,28 @@
  */
 
 #include <catch2/catch_test_macros.hpp>
-#include "cc/lexer.h"
+#include "cc/cc.h"
 
-#define INT  Token::Int
-#define VOID Token::Void
+
+#define CONST_I32(val) {TokenType::ConstI32, #val}
+#define ID(name)       {TokenType::Id, #name}
+#define INT            Token::Int
+#define VOID           Token::Void
 
 #define FN_DEF(ret, name, ...)                                                 \
-    ret, Token::Id(#name), Token::LParen __VA_OPT__(,) __VA_ARGS__, Token::RParen
+    ret, ID(name), Token::LParen __VA_OPT__(,) __VA_ARGS__, Token::RParen
 
-#define RET_STMT(val) Token::Return, Token::Literal(#val), Token::Semicolon
+#define RET_STMT(val) Token::Return, CONST_I32(val), Token::Semicolon
 
 #define VAR_DEF(type, name, val)                                               \
-    type, Token::Id(#name), Token::Eq, Token::Literal(#val), Token::Semicolon
+    type, ID(name), Token::Eq, CONST_I32(val), Token::Semicolon
 
 #define INT_DEF(name, val) VAR_DEF(INT, name, val)
 
-static void test_lexer(const char* src, const std::vector<Token>& tokens);
 
-TEST_CASE("valid programs", "lexer") {
+static void testLexer(const char* src, const std::vector<Token>& tokens);
+
+TEST_CASE("Lexer - valid programs", "[lexer]") {
     SECTION("integer definition") {
         const char* src = R"(
             int x = 10;
@@ -50,7 +54,7 @@ TEST_CASE("valid programs", "lexer") {
             INT_DEF(_otherInt, 472),
             Token::Eof,
         };
-        test_lexer(src, tokens);
+        testLexer(src, tokens);
     }
 
     SECTION("function definition") {
@@ -73,10 +77,26 @@ TEST_CASE("valid programs", "lexer") {
             Token::RBrace,
             Token::Eof,
         };
-        test_lexer(src, tokens);
+        testLexer(src, tokens);
     }
 
-    SECTION("skip comment") {
+    SECTION("multi-digit constant") {
+        const char* src = R"(
+            int main(void) {
+                return 100;
+            }
+        )";
+        std::vector<Token> tokens{
+            FN_DEF(INT, main, VOID),
+            Token::LBrace,
+            RET_STMT(100),
+            Token::RBrace,
+            Token::Eof,
+        };
+        testLexer(src, tokens);
+    }
+
+    SECTION("skip comments") {
         const char* src = R"(
             int i = 10; // some comment
             int j = 11  // other comment
@@ -92,14 +112,71 @@ TEST_CASE("valid programs", "lexer") {
             INT_DEF(k, 12),
             Token::Eof,
         };
-        test_lexer(src, tokens);
+        testLexer(src, tokens);
+    }
+
+    SECTION("skip tabs") {
+        const char* src = R"(
+            int	main	(	void)	{	return	0	;	}
+        )";
+        std::vector<Token> tokens{
+            FN_DEF(INT, main, VOID),
+            Token::LBrace,
+            RET_STMT(0),
+            Token::RBrace,
+            Token::Eof,
+        };
+        testLexer(src, tokens);
     }
 }
 
-static void test_lexer(const char* src, const std::vector<Token>& tokens) {
-    Lexer lexer{};
-    lexer.addSrc(src);
-    for (auto& token : tokens) {
-        REQUIRE(token == lexer.nextToken());
+TEST_CASE("Lexer - invalid programs", "[lexer]") {
+    SECTION("at sign") {
+        const char* src = R"(
+            int main(void) {
+                return 0@1;
+            }
+        )";
+        std::vector<Token> tokens{
+            FN_DEF(INT, main, VOID),
+            Token::LBrace,
+            Token::Return,
+            CONST_I32(0),
+            Token::Invalid,
+        };
+        testLexer(src, tokens);
     }
+
+    SECTION("single backslash") {
+        const char* src = "\\";
+        std::vector<Token> tokens{Token::Invalid};
+        testLexer(src, tokens);
+    }
+
+    SECTION("single backtick") {
+        const char* src = "`";
+        std::vector<Token> tokens{Token::Invalid};
+        testLexer(src, tokens);
+    }
+
+    SECTION("identifier starts with digit") {
+        const char* src = R"(
+            int main(void) {
+                return 1foo;
+            }
+        )";
+        std::vector<Token> tokens{
+            FN_DEF(INT, main, VOID),
+            Token::LBrace,
+            Token::Return,
+            Token::Invalid,
+        };
+        testLexer(src, tokens);
+    }
+}
+
+static void testLexer(const char* src, const std::vector<Token>& tokens) {
+    Compiler compiler{};
+    compiler.runLexer(src);
+    REQUIRE(tokens == compiler.getTokens());
 }

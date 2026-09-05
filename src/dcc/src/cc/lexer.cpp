@@ -111,7 +111,7 @@ Token Lexer::readIdentifier() {
         src++;
     }
     const char* sym = registerSymbol(ptr, src - ptr);
-    return Token::Id(sym);
+    return {TokenType::Id, sym};
 }
 
 Token Lexer::readNum() {
@@ -123,10 +123,11 @@ Token Lexer::readNum() {
         src++;
     }
     if (isLetter(*src)) {
+        src = ptr;
         return Token::Invalid;
     }
     const char* sym = registerSymbol(ptr, src - ptr);
-    return Token::Literal(sym);
+    return {TokenType::ConstI32, sym};
 }
 
 Token Lexer::readChar() {

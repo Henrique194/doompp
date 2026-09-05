@@ -19,30 +19,36 @@
 
 #pragma once
 
-#include "common/types.h"
-#include "cc/cc.h"
+#include "ast.h"
+#include "token.h"
+#include <format>
+#include <optional>
 #include <string>
 
-class Driver {
+class Parser {
   public:
-    Driver(int argc, char* argv[]);
-    bool run(const char* filename);
+    std::optional<AstProg> run(const std::vector<Token>& tokens);
+    const char* getErrorMsg() const;
 
   private:
-    enum RunLevel {
-        RL_LEX,
-        RL_PARSE,
-        RL_CODEGEN,
-        RL_EMIT,
-    };
+    std::optional<AstDecl> parseDecl(Token token);
+    std::optional<AstDecl> parseFn(Token name);
+    std::optional<AstDecl> parseVar(Token name);
 
-    bool setSrc(const char* filename);
-    bool runLexer();
-    bool runParser();
-    void error(const char* fmt, ...) const;
+    std::optional<AstStmt> parseStmt();
+    std::optional<AstStmt> parseReturn();
 
-    u8 run_level{0};
-    const char* filename{nullptr};
-    std::string src{};
-    Compiler compiler{};
+    std::optional<AstExpr> parseExpr();
+    std::optional<AstExpr> parseConstI32();
+    static size_t parseNum(const char* str);
+
+    Token nextToken();
+    Token peekToken() const;
+    Token expectToken(Token token);
+
+    template<typename... Args>
+    void fail(std::format_string<Args...> fmt, Args&&... args);
+
+    const Token* tokens{nullptr};
+    std::string err_msg{};
 };

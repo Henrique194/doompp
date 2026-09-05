@@ -24,65 +24,71 @@
 #include <sstream>
 
 Driver::Driver(int argc, char* argv[]) {
+    // Default to code emission if no option is supplied.
+    run_level = RL_EMIT;
     for (int i = 1; i < argc; i++) {
         if (!std::strcmp(argv[i], "--lex")) {
-            run_flag |= RF_LEX;
+            run_level = RL_LEX;
         } else if (!std::strcmp(argv[i], "--parse")) {
-            run_flag |= RF_PARSE;
+            run_level = RL_PARSE;
         } else if (!std::strcmp(argv[i], "--codegen")) {
-            run_flag |= RF_CODEGEN;
+            run_level = RL_CODEGEN;
         }
-    }
-    if (run_flag == 0) {
-        // Default to code emission if no option was supplied.
-        run_flag = RF_EMIT;
     }
 }
 
 bool Driver::run(const char* filename) {
-    if (run_flag & RF_LEX) {
-        if (!setSrc(filename)) {
-            return false;
-        }
-        if (!runLexer()) {
-            return false;
-        }
+    if (!setSrc(filename)) {
+        return false;
+    }
+    if (run_level >= RL_PARSE) {
+        return runParser();
+    }
+    if (run_level >= RL_LEX) {
+        return runLexer();
     }
     return true;
 }
 
-void Driver::error(const char* fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    std::vfprintf(stderr, fmt, ap);
-    va_end(ap);
-}
-
 bool Driver::setSrc(const char* filename) {
+    this->filename = filename;
     std::ifstream file{filename};
     if (!file) {
-        error("Error opening file: %s\n", filename);
+        error("error opening file");
         return false;
     }
     std::stringstream buffer;
     buffer << file.rdbuf();
     if (!file) {
-        error("Error reading file: %s\n", filename);
+        error("error reading file");
         return false;
     }
-    src = buffer.str();
+    this->src = buffer.str();
     return true;
 }
 
 bool Driver::runLexer() {
-    lexer.addSrc(src.c_str());
-    while (true) {
-        Token token{lexer.nextToken()};
-        if (!token) {
-            return false;
-        }
-        if (token == Token::Eof) {
-            return true;
-        }
+    if (compiler.runLexer(src.c_str())) {
+        return true;
     }
+    error(compiler.getErrorMsg());
+    return false;
+}
+
+bool Driver::runParser() {
+    if (compiler.runParser(src.c_str())) {
+        return true;
+    }
+    error(compiler.getErrorMsg());
+    return false;
+}
+
+void Driver::error(const char* fmt, ...) const {
+    std::fprintf(stderr, "%s: error: ", filename);
+
+    va_list ap;
+    va_start(ap, fmt);
+    std::vfprintf(stderr, fmt, ap);
+    std::fprintf(stderr, "\n");
+    va_end(ap);
 }
