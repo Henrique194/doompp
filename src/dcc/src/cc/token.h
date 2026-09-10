@@ -23,13 +23,16 @@
 
 enum class TokenType {
     Invalid = -1,
+    BCom,
     ConstI32,
+    Decr,
     Eof,
     Eq,
     Id,
     Int,
     LBrace,
     LParen,
+    Neg,
     RBrace,
     RParen,
     Return,
@@ -39,16 +42,19 @@ enum class TokenType {
 
 struct Token {
     const TokenType type;
-    const char* sym;
+    const char* val;
 
     static const Token Invalid;
+    static const Token BCom;
     static const Token ConstI32;
+    static const Token Decr;
     static const Token Eof;
     static const Token Eq;
     static const Token Id;
     static const Token Int;
     static const Token LBrace;
     static const Token LParen;
+    static const Token Neg;
     static const Token RBrace;
     static const Token RParen;
     static const Token Return;
@@ -56,7 +62,7 @@ struct Token {
     static const Token Void;
 
     static const std::array<Token, 3> KEYWORDS;
-    static const std::array<Token, 6> CHARS;
+    static const std::array<Token, 9> SYMBOLS;
 
     bool operator==(const Token& token) const;
     bool operator!=(const Token& token) const;

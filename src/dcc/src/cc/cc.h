@@ -28,7 +28,7 @@ class Compiler {
     bool runLexer(const char* src);
     bool runParser(const char* src);
     const std::vector<Token>& getTokens();
-    const AstProg& getProg();
+    const AstProg& getProg() const;
     const char* getErrorMsg() const;
 
   private:

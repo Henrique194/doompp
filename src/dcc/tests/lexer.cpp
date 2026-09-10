@@ -80,6 +80,25 @@ TEST_CASE("Lexer - valid programs", "[lexer]") {
         testLexer(src, tokens);
     }
 
+    SECTION("function without return type") {
+        const char* src = R"(
+            intmain(void) {
+                return 0;
+            }
+        )";
+        std::vector<Token> tokens{
+            ID(intmain),
+            Token::LParen,
+            VOID,
+            Token::RParen,
+            Token::LBrace,
+            RET_STMT(0),
+            Token::RBrace,
+            Token::Eof,
+        };
+        testLexer(src, tokens);
+    }
+
     SECTION("multi-digit constant") {
         const char* src = R"(
             int main(void) {

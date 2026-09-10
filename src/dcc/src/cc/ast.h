@@ -23,9 +23,16 @@
 #include <string>
 #include <vector>
 
+union AstExpr;
+
+enum class AstUnOp {
+    Complement,
+    Negate,
+};
 
 enum class AstExprType {
     ConstI32,
+    Unary,
 };
 
 struct AstExprConstI32 {
@@ -35,11 +42,20 @@ struct AstExprConstI32 {
     void fmt(std::string& s) const;
 };
 
+struct AstExprUnary {
+    AstExprType type{AstExprType::Unary};
+    AstUnOp op;
+    AstExpr* expr;
+
+    void fmt(std::string& s) const;
+};
+
 union AstExpr {
     struct {
         AstExprType type;
     };
     AstExprConstI32 int32;
+    AstExprUnary unary;
 
     void fmt(std::string& s) const;
 };
@@ -51,7 +67,7 @@ enum class AstStmtType {
 
 struct AstStmtRet {
     AstStmtType type{AstStmtType::Return};
-    AstExpr expr;
+    AstExpr* expr;
 
     void fmt(std::string& s, size_t depth) const;
 };
@@ -74,7 +90,7 @@ enum class AstDeclType {
 struct AstDeclFn {
     AstDeclType type{AstDeclType::Fn};
     const char* name;
-    AstStmt body;
+    AstStmt* body;
 
     void fmt(std::string& s, size_t depth) const;
 };
@@ -99,7 +115,7 @@ union AstDecl {
 
 
 struct AstProg {
-    std::vector<AstDecl> decls{};
+    std::vector<AstDecl*> decls{};
 
     std::string toStr() const;
 };

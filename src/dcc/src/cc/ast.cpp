@@ -32,8 +32,8 @@
 std::string AstProg::toStr() const {
     std::string str{};
     str.reserve(1024);
-    for (auto& decl : decls) {
-        decl.fmt(str, 0);
+    for (auto decl : decls) {
+        decl->fmt(str, 0);
     }
     return str;
 }
@@ -52,7 +52,7 @@ void AstDecl::fmt(std::string& s, size_t depth) const {
 
 void AstDeclFn::fmt(std::string& s, size_t depth) const {
     APPEND(depth, s, "int {}(void) {{\n", name);
-    body.fmt(s, depth + 1);
+    body->fmt(s, depth + 1);
     APPEND(depth, s, "}}\n");
 }
 
@@ -71,7 +71,7 @@ void AstStmt::fmt(std::string& s, size_t depth) const {
 
 void AstStmtRet::fmt(std::string& s, size_t depth) const {
     APPEND(depth, s, "return ");
-    expr.fmt(s);
+    expr->fmt(s);
     FORMAT(s, ";\n");
 }
 
@@ -82,10 +82,25 @@ void AstExpr::fmt(std::string& s) const {
         case AstExprType::ConstI32:
             int32.fmt(s);
             break;
+        case AstExprType::Unary:
+            unary.fmt(s);
+            break;
     }
     FORMAT(s, ")");
 }
 
 void AstExprConstI32::fmt(std::string& s) const {
     FORMAT(s, "{}", val);
+}
+
+void AstExprUnary::fmt(std::string& s) const {
+    switch (op) {
+        case AstUnOp::Complement:
+            FORMAT(s, "~");
+            break;
+        case AstUnOp::Negate:
+            FORMAT(s, "-");
+            break;
+    }
+    expr->fmt(s);
 }

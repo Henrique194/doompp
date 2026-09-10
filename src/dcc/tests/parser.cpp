@@ -22,7 +22,8 @@
 #include <cctype>
 #include <string>
 
-static void testParser(const char* src, const char* result);
+static void testParserPass(const char* src, const char* result);
+static void testParserFail(const char* src);
 static const char* skipSpaces(const char* s);
 
 TEST_CASE("Parser - valid programs", "[parser]") {
@@ -35,7 +36,7 @@ TEST_CASE("Parser - valid programs", "[parser]") {
             int i = (10);
             int _j = (11);
         )";
-        testParser(src, result);
+        testParserPass(src, result);
     }
 
     SECTION("function definition") {
@@ -49,28 +50,119 @@ TEST_CASE("Parser - valid programs", "[parser]") {
                 return (0);
             }
         )";
-        testParser(src, result);
+        testParserPass(src, result);
+    }
+
+    SECTION("bitwise complement") {
+        const char* src = R"(
+            int main(void) {
+                return ~-2147483647;
+            }
+            int main(void) {
+                return ~0;
+            }
+        )";
+        const char* result = R"(
+            int main(void) {
+                return (~(-(2147483647)));
+            }
+            int main(void) {
+                return (~(0));
+            }
+        )";
+        testParserPass(src, result);
+    }
+
+    SECTION("negation operator") {
+        const char* src = R"(
+            int main(void) {
+                return -2147483647;
+            }
+            int main(void) {
+                return -0;
+            }
+            int main(void) {
+                return (-2);
+            }
+        )";
+        const char* result = R"(
+            int main(void) {
+                return (-(2147483647));
+            }
+            int main(void) {
+                return (-(0));
+            }
+            int main(void) {
+                return (-(2));
+            }
+        )";
+        testParserPass(src, result);
     }
 }
 
-static void testParser(const char* src, const char* result) {
+TEST_CASE("Parser - invalid programs", "[parser]") {
+    SECTION("extra parenthesis") {
+        const char* src = R"(
+            int main(void)
+            {
+                return (3));
+            }
+        )";
+        testParserFail(src);
+    }
+
+    SECTION("missing constant") {
+        const char* src = R"(
+            int main(void) {
+                return ~;
+            }
+        )";
+        testParserFail(src);
+    }
+
+    SECTION("missing semicolon") {
+        const char* src = R"(
+            int main(void) {
+                return -5
+            }
+        )";
+        testParserFail(src);
+    }
+
+    SECTION("unclosed parenthesis") {
+        const char* src = R"(
+            int main(void)
+            {
+                return (1;
+            }
+        )";
+        testParserFail(src);
+    }
+}
+
+static void testParserPass(const char* src, const char* result) {
     Compiler compiler{};
     REQUIRE(compiler.runParser(src) == true);
-    std::string prog{compiler.getProg().toStr()};
-    const char* progPtr = prog.c_str();
-    while (*result && *progPtr) {
+    std::string progStr{compiler.getProg().toStr()};
+    const char* prog = progStr.c_str();
+    while (*result && *prog) {
         result = skipSpaces(result);
-        progPtr = skipSpaces(progPtr);
-        if (*result != *progPtr || *result == 0) {
+        prog = skipSpaces(prog);
+        if (*result != *prog || *result == 0) {
             break;
         }
         result++;
-        progPtr++;
+        prog++;
     }
     // Skip any remaining space.
     result = skipSpaces(result);
-    progPtr = skipSpaces(progPtr);
-    REQUIRE((*result == 0 && *progPtr == 0));
+    prog = skipSpaces(prog);
+    REQUIRE((*result == 0 && *prog == 0));
+}
+
+static void testParserFail(const char* src) {
+    Compiler compiler{};
+    REQUIRE(compiler.runParser(src) == false);
 }
 
 static const char* skipSpaces(const char* s) {

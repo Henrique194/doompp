@@ -51,7 +51,7 @@ const std::vector<Token>& Compiler::getTokens() {
     return tokens;
 }
 
-const AstProg& Compiler::getProg() {
+const AstProg& Compiler::getProg() const {
     return prog;
 }
 

@@ -32,11 +32,11 @@ class Lexer {
   private:
     void skipSpaces();
     void skipComments();
+    Token readSymbol();
     Token readKeyword();
     Token readIdentifier();
     Token readNum();
-    Token readChar();
-    const char* registerSymbol(const char* str, size_t len);
+    const char* registerStr(const char* str, size_t len);
     static bool isLetter(char c);
     static bool isDigit(char c);
     static bool isSpace(char c);
@@ -45,5 +45,5 @@ class Lexer {
     const char* src{nullptr};
     u32 line{1};
     // We need std::deque for pointer stability when creating tokens.
-    std::deque<std::string> symbols{512};
+    std::deque<std::string> strs{512};
 };

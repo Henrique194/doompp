@@ -21,25 +21,27 @@
 
 #include "ast.h"
 #include "token.h"
+#include <deque>
 #include <format>
 #include <optional>
 #include <string>
 
 class Parser {
   public:
-    std::optional<AstProg> run(const std::vector<Token>& tokens);
+    std::optional<AstProg> run(const std::vector<Token>& tks);
     const char* getErrorMsg() const;
 
   private:
-    std::optional<AstDecl> parseDecl(Token token);
-    std::optional<AstDecl> parseFn(Token name);
-    std::optional<AstDecl> parseVar(Token name);
+    AstDecl* parseDecl(Token token);
+    AstDecl* parseFn(Token name);
+    AstDecl* parseVar(Token name);
 
-    std::optional<AstStmt> parseStmt();
-    std::optional<AstStmt> parseReturn();
+    AstStmt* parseStmt();
+    AstStmt* parseReturn();
 
-    std::optional<AstExpr> parseExpr();
-    std::optional<AstExpr> parseConstI32();
+    AstExpr* parseExpr();
+    AstExpr* parseConstI32();
+    AstExpr* parseUnary(AstUnOp op);
     static size_t parseNum(const char* str);
 
     Token nextToken();
@@ -47,8 +49,20 @@ class Parser {
     Token expectToken(Token token);
 
     template<typename... Args>
+    AstDecl* newDecl(Args&&... args);
+    template<typename... Args>
+    AstExpr* newExpr(Args&&... args);
+    template<typename... Args>
+    AstStmt* newStmt(Args&&... args);
+
+    template<typename... Args>
     void fail(std::format_string<Args...> fmt, Args&&... args);
+
+    void reset(const std::vector<Token>& tks);
 
     const Token* tokens{nullptr};
     std::string err_msg{};
+    std::deque<AstDecl> decls{};
+    std::deque<AstExpr> exprs{};
+    std::deque<AstStmt> stmts{};
 };

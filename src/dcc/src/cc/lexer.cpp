@@ -32,6 +32,9 @@ Token Lexer::nextToken() {
     if (*src == 0) {
         return Token::Eof;
     }
+    if (auto t{readSymbol()}) {
+        return t;
+    }
     if (auto t{readKeyword()}) {
         return t;
     }
@@ -39,9 +42,6 @@ Token Lexer::nextToken() {
         return t;
     }
     if (auto t{readNum()}) {
-        return t;
-    }
-    if (auto t{readChar()}) {
         return t;
     }
     return Token::Invalid;
@@ -83,18 +83,31 @@ void Lexer::skipComments() {
     }
 }
 
-Token Lexer::readKeyword() {
-    for (auto& t : Token::KEYWORDS) {
+Token Lexer::readSymbol() {
+    for (auto& t : Token::SYMBOLS) {
         const char* s1 = src;
-        const char* s2 = t.sym;
-        while (*s1 && *s2) {
-            if (*s1 != *s2) {
-                break;
-            }
+        const char* s2 = t.val;
+        while (*s1 && *s1 == *s2) {
             s1++;
             s2++;
         }
         if (*s2 == 0) {
+            src = s1;
+            return t;
+        }
+    }
+    return Token::Invalid;
+}
+
+Token Lexer::readKeyword() {
+    for (auto& t : Token::KEYWORDS) {
+        const char* s1 = src;
+        const char* s2 = t.val;
+        while (*s1 && *s1 == *s2) {
+            s1++;
+            s2++;
+        }
+        if (*s2 == 0 && !isLetter(*s1) && !isDigit(*s1)) {
             src = s1;
             return t;
         }
@@ -110,8 +123,8 @@ Token Lexer::readIdentifier() {
     while (isLetter(*src) || isDigit(*src)) {
         src++;
     }
-    const char* sym = registerSymbol(ptr, src - ptr);
-    return {TokenType::Id, sym};
+    const char* val = registerStr(ptr, src - ptr);
+    return {TokenType::Id, val};
 }
 
 Token Lexer::readNum() {
@@ -126,27 +139,17 @@ Token Lexer::readNum() {
         src = ptr;
         return Token::Invalid;
     }
-    const char* sym = registerSymbol(ptr, src - ptr);
-    return {TokenType::ConstI32, sym};
+    const char* val = registerStr(ptr, src - ptr);
+    return {TokenType::ConstI32, val};
 }
 
-Token Lexer::readChar() {
-    for (auto& t : Token::CHARS) {
-        if (*src == *t.sym) {
-            src++;
-            return t;
+const char* Lexer::registerStr(const char* str, size_t len) {
+    for (auto& s : strs) {
+        if (s == str) {
+            return s.c_str();
         }
     }
-    return Token::Invalid;
-}
-
-const char* Lexer::registerSymbol(const char* str, size_t len) {
-    for (auto& sym : symbols) {
-        if (sym == str) {
-            return sym.c_str();
-        }
-    }
-    return symbols.emplace_back(str, len).c_str();
+    return strs.emplace_back(str, len).c_str();
 }
 
 bool Lexer::isLetter(char c) {
