@@ -64,7 +64,7 @@ AstDecl* Parser::parseDecl(Token token) {
             return parseVar(name);
         }
         default:
-            fail("no declaration found for token '{}'", token.val);
+            fail("no declaration found for token '{}'", token.sym);
             return nullptr;
     }
 }
@@ -79,18 +79,18 @@ AstDecl* Parser::parseFn(Token name) {
         return nullptr;
     }
     EXPECT_TOKEN(Token::RBrace);
-    AstDeclFn fn{.name = name.val, .body = body};
+    AstDeclFn fn{.name = name.sym, .body = body};
     return newDecl(AstDecl{.fn = fn});
 }
 
 AstDecl* Parser::parseVar(Token name) {
-    EXPECT_TOKEN(Token::Eq);
+    EXPECT_TOKEN(Token::Assign);
     Token val{expectToken(Token::ConstI32)};
     if (!val) {
         return nullptr;
     }
     EXPECT_TOKEN(Token::Semicolon);
-    AstDeclVar var{.name = name.val, .val = val.val};
+    AstDeclVar var{.name = name.sym, .val = val.sym};
     return newDecl(AstDecl{.var = var});
 }
 
@@ -101,7 +101,7 @@ AstStmt* Parser::parseStmt() {
         case TokenType::Return:
             return parseReturn();
         default:
-            fail("no statement found for token '{}'", token.val);
+            fail("no statement found for token '{}'", token.sym);
             return nullptr;
     }
 }
@@ -134,7 +134,7 @@ AstExpr* Parser::parseExpr() {
         case TokenType::Neg:
             return parseUnary(AstUnOp::Negate);
         default:
-            fail("no expression found for token '{}'", token.val);
+            fail("no expression found for token '{}'", token.sym);
             return nullptr;
     }
 }
@@ -144,7 +144,7 @@ AstExpr* Parser::parseConstI32() {
     if (!token) {
         return nullptr;
     }
-    i32 val = (i32) parseNum(token.val);
+    i32 val = (i32) parseNum(token.sym);
     return newExpr(AstExpr{.int32 = {.val = val}});
 }
 
@@ -191,9 +191,9 @@ Token Parser::expectToken(Token token) {
         return next;
     }
     if (next == Token::Eof) {
-        fail("expected '{}' at end of input", token.val);
+        fail("expected '{}' at end of input", token.sym);
     } else {
-        fail("expected '{}' before '{}'", token.val, next.val);
+        fail("expected '{}' before '{}'", token.sym, next.sym);
     }
     return Token::Invalid;
 }

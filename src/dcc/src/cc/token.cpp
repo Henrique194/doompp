@@ -21,11 +21,11 @@
 #include <cstring>
 
 const Token Token::Invalid{TokenType::Invalid, nullptr};
+const Token Token::Assign{TokenType::Assign, "="};
 const Token Token::BCom{TokenType::BCom, "~"};
 const Token Token::ConstI32{TokenType::ConstI32, "constant"};
 const Token Token::Decr{TokenType::Decr, "--"};
 const Token Token::Eof{TokenType::Eof, ""};
-const Token Token::Eq{TokenType::Eq, "="};
 const Token Token::Id{TokenType::Id, "identifier"};
 const Token Token::Int{TokenType::Int, "int"};
 const Token Token::LBrace{TokenType::LBrace, "{"};
@@ -37,35 +37,17 @@ const Token Token::Return{TokenType::Return, "return"};
 const Token Token::Semicolon{TokenType::Semicolon, ";"};
 const Token Token::Void{TokenType::Void, "void"};
 
-const std::array<Token, 3> Token::KEYWORDS{
-    Token::Int,
-    Token::Return,
-    Token::Void,
-};
-
-const std::array<Token, 9> Token::SYMBOLS{
-    Token::Decr,
-    Token::BCom,
-    Token::Eq,
-    Token::LBrace,
-    Token::LParen,
-    Token::Neg,
-    Token::RBrace,
-    Token::RParen,
-    Token::Semicolon,
-};
-
 bool Token::operator==(const Token& token) const {
     if (type != token.type) {
         return false;
     }
-    if (val == token.val) {
+    if (sym == token.sym) {
         return true;
     }
-    if (!val || !token.val) {
+    if (!sym || !token.sym) {
         return false;
     }
-    return std::strcmp(val, token.val) == 0;
+    return std::strcmp(sym, token.sym) == 0;
 }
 
 bool Token::operator!=(const Token& token) const {

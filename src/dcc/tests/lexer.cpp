@@ -32,7 +32,7 @@
 #define RET_STMT(val) Token::Return, CONST_I32(val), Token::Semicolon
 
 #define VAR_DEF(type, name, val)                                               \
-    type, ID(name), Token::Eq, CONST_I32(val), Token::Semicolon
+    type, ID(name), Token::Assign, CONST_I32(val), Token::Semicolon
 
 #define INT_DEF(name, val) VAR_DEF(INT, name, val)
 

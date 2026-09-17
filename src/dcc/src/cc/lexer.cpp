@@ -18,6 +18,24 @@
  */
 
 #include "lexer.h"
+#include <cstring>
+
+// Macro for lexing single-char token.
+#define T(c, t)                                                                \
+    case c:                                                                    \
+        src++;                                                                 \
+        return Token::t
+
+// Macro for lexing a char that may form a two-char token.
+// If the next char is 'n', return 't1', otherwise return 't2'.
+#define TT(c, n, t1, t2)                                                       \
+    case c:                                                                    \
+        if (src[1] == n) {                                                     \
+            src += 2;                                                          \
+            Token::t1;                                                         \
+        }                                                                      \
+        src++;                                                                 \
+        return Token::t2
 
 void Lexer::addSrc(const char* src) {
     this->src = src;
@@ -29,25 +47,28 @@ Token Lexer::nextToken() {
         skipSpaces();
         skipComments();
     }
-    if (*src == 0) {
-        return Token::Eof;
+    switch (*src) {
+        T('\0', Eof);
+        T('=', Assign);
+        T('~', BCom);
+        T('{', LBrace);
+        T('(', LParen);
+        T('}', RBrace);
+        T(')', RParen);
+        T(';', Semicolon);
+        TT('-', '-', Decr, Neg);
+        case '0': case '1':
+        case '2': case '3':
+        case '4': case '5':
+        case '6': case '7':
+        case '8': case '9':
+            return readNum();
+        default:
+            return readIdentifier();
     }
-    if (auto t{readSymbol()}) {
-        return t;
-    }
-    if (auto t{readKeyword()}) {
-        return t;
-    }
-    if (auto t{readIdentifier()}) {
-        return t;
-    }
-    if (auto t{readNum()}) {
-        return t;
-    }
-    return Token::Invalid;
 }
 
-void Lexer::skipSpaces() {
+inline void Lexer::skipSpaces() {
     while (isSpace(*src)) {
         if (*src == '\n') {
             line++;
@@ -56,7 +77,7 @@ void Lexer::skipSpaces() {
     }
 }
 
-void Lexer::skipComments() {
+inline void Lexer::skipComments() {
     // single-line comment
     if (src[0] == '/' && src[1] == '/') {
         src += 2;
@@ -83,39 +104,7 @@ void Lexer::skipComments() {
     }
 }
 
-Token Lexer::readSymbol() {
-    for (auto& t : Token::SYMBOLS) {
-        const char* s1 = src;
-        const char* s2 = t.val;
-        while (*s1 && *s1 == *s2) {
-            s1++;
-            s2++;
-        }
-        if (*s2 == 0) {
-            src = s1;
-            return t;
-        }
-    }
-    return Token::Invalid;
-}
-
-Token Lexer::readKeyword() {
-    for (auto& t : Token::KEYWORDS) {
-        const char* s1 = src;
-        const char* s2 = t.val;
-        while (*s1 && *s1 == *s2) {
-            s1++;
-            s2++;
-        }
-        if (*s2 == 0 && !isLetter(*s1) && !isDigit(*s1)) {
-            src = s1;
-            return t;
-        }
-    }
-    return Token::Invalid;
-}
-
-Token Lexer::readIdentifier() {
+inline Token Lexer::readIdentifier() {
     if (!isLetter(*src)) {
         return Token::Invalid;
     }
@@ -123,14 +112,15 @@ Token Lexer::readIdentifier() {
     while (isLetter(*src) || isDigit(*src)) {
         src++;
     }
-    const char* val = registerStr(ptr, src - ptr);
-    return {TokenType::Id, val};
+    size_t len = src - ptr;
+    if (auto t{getKeyword(ptr, len)}) {
+        return t;
+    }
+    const char* sym = registerStr(ptr, len);
+    return {TokenType::Id, sym};
 }
 
-Token Lexer::readNum() {
-    if (!isDigit(*src)) {
-        return Token::Invalid;
-    }
+inline Token Lexer::readNum() {
     const char* ptr = src;
     while (isDigit(*src)) {
         src++;
@@ -139,11 +129,11 @@ Token Lexer::readNum() {
         src = ptr;
         return Token::Invalid;
     }
-    const char* val = registerStr(ptr, src - ptr);
-    return {TokenType::ConstI32, val};
+    const char* sym = registerStr(ptr, src - ptr);
+    return {TokenType::ConstI32, sym};
 }
 
-const char* Lexer::registerStr(const char* str, size_t len) {
+inline const char* Lexer::registerStr(const char* str, size_t len) {
     for (auto& s : strs) {
         if (s == str) {
             return s.c_str();
@@ -152,19 +142,42 @@ const char* Lexer::registerStr(const char* str, size_t len) {
     return strs.emplace_back(str, len).c_str();
 }
 
-bool Lexer::isLetter(char c) {
-    return std::isalpha(c) || c == '_';
+inline Token Lexer::getKeyword(const char* s, size_t len) {
+    switch (len) {
+        case 3:
+            if (!std::memcmp(s, "int", 3)) {
+                return Token::Int;
+            }
+            return Token::Invalid;
+        case 4:
+            if (!std::memcmp(s, "void", 4)) {
+                return Token::Void;
+            }
+            return Token::Invalid;
+        case 6:
+            if (!std::memcmp(s, "return", 6)) {
+                return Token::Return;
+            }
+            return Token::Invalid;
+        default:
+            return Token::Invalid;
+    }
 }
 
-bool Lexer::isDigit(char c) {
-    return std::isdigit(c);
+inline bool Lexer::isLetter(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-bool Lexer::isSpace(char c) {
-    return std::isspace(c);
+inline bool Lexer::isDigit(char c) {
+    return c >= '0' && c <= '9';
 }
 
-bool Lexer::isComment(const char* str) {
+inline bool Lexer::isSpace(char c) {
+    return c == ' ' || c == '\f' || c == '\n'
+        || c == '\r' || c == '\t' || c == '\v';
+}
+
+inline bool Lexer::isComment(const char* str) {
     if (*str == 0 || *str != '/') {
         return false;
     }

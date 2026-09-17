@@ -32,11 +32,10 @@ class Lexer {
   private:
     void skipSpaces();
     void skipComments();
-    Token readSymbol();
-    Token readKeyword();
     Token readIdentifier();
     Token readNum();
     const char* registerStr(const char* str, size_t len);
+    static Token getKeyword(const char* s, size_t len);
     static bool isLetter(char c);
     static bool isDigit(char c);
     static bool isSpace(char c);

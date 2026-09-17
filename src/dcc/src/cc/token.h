@@ -19,15 +19,13 @@
 
 #pragma once
 
-#include <array>
-
 enum class TokenType {
     Invalid = -1,
+    Assign,
     BCom,
     ConstI32,
     Decr,
     Eof,
-    Eq,
     Id,
     Int,
     LBrace,
@@ -42,14 +40,14 @@ enum class TokenType {
 
 struct Token {
     const TokenType type;
-    const char* val;
+    const char* sym;
 
     static const Token Invalid;
+    static const Token Assign;
     static const Token BCom;
     static const Token ConstI32;
     static const Token Decr;
     static const Token Eof;
-    static const Token Eq;
     static const Token Id;
     static const Token Int;
     static const Token LBrace;
@@ -60,9 +58,6 @@ struct Token {
     static const Token Return;
     static const Token Semicolon;
     static const Token Void;
-
-    static const std::array<Token, 3> KEYWORDS;
-    static const std::array<Token, 9> SYMBOLS;
 
     bool operator==(const Token& token) const;
     bool operator!=(const Token& token) const;
