@@ -16,6 +16,7 @@ set(DCC_SRC
     src/cc/cc.cpp
     src/cc/lexer.cpp
     src/cc/parser.cpp
+    src/cc/tac.cpp
     src/cc/token.cpp
     src/driver/driver.cpp
 )

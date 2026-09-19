@@ -18,6 +18,7 @@
  */
 
 #include "cc.h"
+#include <utility>
 
 bool Compiler::runLexer(const char* src) {
     reset();
@@ -26,7 +27,7 @@ bool Compiler::runLexer(const char* src) {
         Token token{lexer.nextToken()};
         tokens.push_back(token);
         if (!token) {
-            error_msg = "lexer found invalid token";
+            err_msg = "lexer found invalid token";
             return false;
         }
         if (token == Token::Eof) {
@@ -40,10 +41,22 @@ bool Compiler::runParser(const char* src) {
         return false;
     }
     if (auto ast{parser.run(tokens)}) {
-        prog = *ast;
+        prog = std::move(*ast);
         return true;
     }
-    error_msg = parser.getErrorMsg();
+    err_msg = parser.getErrorMsg();
+    return false;
+}
+
+bool Compiler::emitTac(const char* src) {
+    if (!runParser(src)) {
+        return false;
+    }
+    if (auto ast{tac_gen.emit(prog)}) {
+        tac_prog = std::move(*ast);
+        return true;
+    }
+    err_msg = parser.getErrorMsg();
     return false;
 }
 
@@ -56,13 +69,14 @@ const AstProg& Compiler::getProg() const {
 }
 
 const char* Compiler::getErrorMsg() const {
-    return error_msg;
+    return err_msg;
 }
 
 void Compiler::reset() {
-    error_msg = "";
+    err_msg = "";
     lexer = Lexer{};
     tokens.clear();
     parser = Parser{};
     prog = AstProg{};
+    tac_prog = TacProg{};
 }

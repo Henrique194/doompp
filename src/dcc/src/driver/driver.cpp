@@ -31,15 +31,20 @@ Driver::Driver(int argc, char* argv[]) {
             run_level = RL_LEX;
         } else if (!std::strcmp(argv[i], "--parse")) {
             run_level = RL_PARSE;
+        } else if (!std::strcmp(argv[i], "--tacky")) {
+            run_level = RL_TAC;
         } else if (!std::strcmp(argv[i], "--codegen")) {
             run_level = RL_CODEGEN;
         }
     }
 }
 
-bool Driver::run(const char* filename) {
-    if (!setSrc(filename)) {
+bool Driver::run(const char* file) {
+    if (!setSrc(file)) {
         return false;
+    }
+    if (run_level >= RL_TAC) {
+        return emitTac();
     }
     if (run_level >= RL_PARSE) {
         return runParser();
@@ -50,15 +55,15 @@ bool Driver::run(const char* filename) {
     return true;
 }
 
-bool Driver::setSrc(const char* filename) {
-    this->filename = filename;
-    std::ifstream file{filename};
-    if (!file) {
+bool Driver::setSrc(const char* file) {
+    this->filename = file;
+    std::ifstream fstream{filename};
+    if (!fstream) {
         error("error opening file");
         return false;
     }
     std::stringstream buffer;
-    buffer << file.rdbuf();
+    buffer << fstream.rdbuf();
     if (!file) {
         error("error reading file");
         return false;
@@ -77,6 +82,14 @@ bool Driver::runLexer() {
 
 bool Driver::runParser() {
     if (compiler.runParser(src.c_str())) {
+        return true;
+    }
+    error(compiler.getErrorMsg());
+    return false;
+}
+
+bool Driver::emitTac() {
+    if (compiler.emitTac(src.c_str())) {
         return true;
     }
     error(compiler.getErrorMsg());

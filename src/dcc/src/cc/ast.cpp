@@ -95,10 +95,10 @@ void AstExprConstI32::fmt(std::string& s) const {
 
 void AstExprUnary::fmt(std::string& s) const {
     switch (op) {
-        case AstUnOp::Complement:
+        case AstUnOp::BCom:
             FORMAT(s, "~");
             break;
-        case AstUnOp::Negate:
+        case AstUnOp::Neg:
             FORMAT(s, "-");
             break;
     }

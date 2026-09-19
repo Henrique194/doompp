@@ -122,7 +122,7 @@ AstExpr* Parser::parseExpr() {
     Token token{peekToken()};
     switch (token.type) {
         case TokenType::BCom:
-            return parseUnary(AstUnOp::Complement);
+            return parseUnary(AstUnOp::BCom);
         case TokenType::ConstI32:
             return parseConstI32();
         case TokenType::LParen: {
@@ -132,7 +132,7 @@ AstExpr* Parser::parseExpr() {
             return expr;
         }
         case TokenType::Neg:
-            return parseUnary(AstUnOp::Negate);
+            return parseUnary(AstUnOp::Neg);
         default:
             fail("no expression found for token '{}'", token.sym);
             return nullptr;

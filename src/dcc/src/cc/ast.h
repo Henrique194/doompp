@@ -26,8 +26,8 @@
 union AstExpr;
 
 enum class AstUnOp {
-    Complement,
-    Negate,
+    BCom,
+    Neg,
 };
 
 enum class AstExprType {

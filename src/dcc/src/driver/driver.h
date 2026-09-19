@@ -26,19 +26,21 @@
 class Driver {
   public:
     Driver(int argc, char* argv[]);
-    bool run(const char* filename);
+    bool run(const char* file);
 
   private:
     enum RunLevel {
         RL_LEX,
         RL_PARSE,
+        RL_TAC,
         RL_CODEGEN,
         RL_EMIT,
     };
 
-    bool setSrc(const char* filename);
+    bool setSrc(const char* file);
     bool runLexer();
     bool runParser();
+    bool emitTac();
     void error(const char* fmt, ...) const;
 
     u8 run_level{0};

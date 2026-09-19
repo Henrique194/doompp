@@ -21,12 +21,14 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "tac.h"
 #include <vector>
 
 class Compiler {
   public:
     bool runLexer(const char* src);
     bool runParser(const char* src);
+    bool emitTac(const char* src);
     const std::vector<Token>& getTokens();
     const AstProg& getProg() const;
     const char* getErrorMsg() const;
@@ -34,11 +36,14 @@ class Compiler {
   private:
     void reset();
 
-    const char* error_msg{""};
+    const char* err_msg{""};
 
     Lexer lexer{};
     std::vector<Token> tokens{};
 
     Parser parser{};
     AstProg prog{};
+
+    TacGen tac_gen{};
+    TacProg tac_prog{};
 };
