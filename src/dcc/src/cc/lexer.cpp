@@ -142,28 +142,6 @@ inline const char* Lexer::registerStr(const char* str, size_t len) {
     return strs.emplace_back(str, len).c_str();
 }
 
-inline Token Lexer::getKeyword(const char* s, size_t len) {
-    switch (len) {
-        case 3:
-            if (!std::memcmp(s, "int", 3)) {
-                return Token::Int;
-            }
-            return Token::Invalid;
-        case 4:
-            if (!std::memcmp(s, "void", 4)) {
-                return Token::Void;
-            }
-            return Token::Invalid;
-        case 6:
-            if (!std::memcmp(s, "return", 6)) {
-                return Token::Return;
-            }
-            return Token::Invalid;
-        default:
-            return Token::Invalid;
-    }
-}
-
 inline bool Lexer::isLetter(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }

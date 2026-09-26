@@ -26,12 +26,24 @@ bool Compiler::runLexer(const char* src) {
     while (true) {
         Token token{lexer.nextToken()};
         tokens.push_back(token);
-        if (!token) {
-            err_msg = "lexer found invalid token";
-            return false;
-        }
-        if (token == Token::Eof) {
-            return true;
+        switch (token.type) {
+            case TokenType::Eof:
+                return true;
+            case TokenType::Invalid:
+                err_msg = "lexer found invalid token";
+                return false;
+            case TokenType::Atomic:
+                err_msg = "no support for atomic operations";
+                return false;
+            case TokenType::Complex:
+            case TokenType::Imaginary:
+                err_msg = "no support for complex types";
+                return false;
+            case TokenType::ThreadLocal:
+                err_msg = "no support for multithreading";
+                return false;
+            default:
+                break;
         }
     }
 }
