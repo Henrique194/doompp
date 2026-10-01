@@ -44,5 +44,5 @@ class Lexer {
     const char* src{nullptr};
     u32 line{1};
     // We need std::deque for pointer stability when creating tokens.
-    std::deque<std::string> strs{512};
+    std::deque<std::string> strs{};
 };

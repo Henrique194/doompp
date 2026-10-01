@@ -84,7 +84,7 @@ AstDecl* Parser::parseFn(Token name) {
 }
 
 AstDecl* Parser::parseVar(Token name) {
-    EXPECT_TOKEN(Token::Assign);
+    EXPECT_TOKEN(Token::Eq);
     Token val{expectToken(Token::ConstI32)};
     if (!val) {
         return nullptr;
@@ -131,7 +131,7 @@ AstExpr* Parser::parseExpr() {
             EXPECT_TOKEN(Token::RParen);
             return expr;
         }
-        case TokenType::Neg:
+        case TokenType::Sub:
             return parseUnary(AstUnOp::Neg);
         default:
             fail("no expression found for token '{}'", token.sym);

@@ -21,45 +21,81 @@
 
 enum class TokenType {
     Invalid = -1,
-    Assign,
+    Add,
+    AddEq,
+    And,
     Auto,
+    BAnd,
+    BAndEq,
     BCom,
+    BXor,
+    BXorEq,
+    BOr,
+    BOrEq,
     Break,
     Case,
     Char,
+    Colon,
+    Comma,
     Const,
     ConstI32,
     Continue,
     Decr,
     Default,
+    Deref,
+    Div,
+    DivEq,
     Do,
+    Dot,
     Double,
+    Ellipsis,
     Else,
     Enum,
+    Eq,
+    EqEq,
     Eof,
     Extern,
     Float,
     For,
+    Gt,
+    GtEq,
     Goto,
     Id,
     If,
+    Incr,
     Inline,
     Int,
     LBrace,
+    LBracket,
     LParen,
+    LShift,
+    LShiftEq,
+    Lt,
+    LtEq,
     Long,
-    Neg,
+    Mod,
+    ModEq,
+    Mul,
+    MulEq,
+    Not,
+    NotEq,
+    Or,
     Register,
     Restrict,
     Return,
     RBrace,
+    RBracket,
     RParen,
+    RShift,
+    RShiftEq,
     Semicolon,
     Short,
     Signed,
     Sizeof,
     Static,
     Struct,
+    Sub,
+    SubEq,
     Switch,
     Typedef,
     Union,
@@ -67,6 +103,7 @@ enum class TokenType {
     Void,
     Volatile,
     While,
+
     // Keywords that start with underscore.
     Alignas,
     Alignof,
@@ -85,45 +122,81 @@ struct Token {
     const char* sym;
 
     static const Token Invalid;
-    static const Token Assign;
+    static const Token Add;
+    static const Token AddEq;
+    static const Token And;
+    static const Token Eq;
     static const Token Auto;
+    static const Token BAnd;
+    static const Token BAndEq;
     static const Token BCom;
+    static const Token BOr;
+    static const Token BOrEq;
+    static const Token BXor;
+    static const Token BXorEq;
     static const Token Break;
     static const Token Case;
     static const Token Char;
+    static const Token Colon;
+    static const Token Comma;
     static const Token Const;
     static const Token ConstI32;
     static const Token Continue;
     static const Token Decr;
     static const Token Default;
+    static const Token Deref;
+    static const Token Div;
+    static const Token DivEq;
     static const Token Do;
+    static const Token Dot;
     static const Token Double;
+    static const Token Ellipsis;
     static const Token Else;
     static const Token Enum;
+    static const Token EqEq;
     static const Token Eof;
     static const Token Extern;
     static const Token Float;
     static const Token For;
+    static const Token Gt;
+    static const Token GtEq;
     static const Token Goto;
     static const Token Id;
     static const Token If;
+    static const Token Incr;
     static const Token Inline;
     static const Token Int;
     static const Token LBrace;
+    static const Token LBracket;
     static const Token LParen;
+    static const Token LShift;
+    static const Token LShiftEq;
+    static const Token Lt;
+    static const Token LtEq;
     static const Token Long;
-    static const Token Neg;
+    static const Token Mod;
+    static const Token ModEq;
+    static const Token Mul;
+    static const Token MulEq;
+    static const Token Not;
+    static const Token NotEq;
+    static const Token Or;
     static const Token Register;
     static const Token Restrict;
     static const Token Return;
     static const Token RBrace;
+    static const Token RBracket;
     static const Token RParen;
+    static const Token RShift;
+    static const Token RShiftEq;
     static const Token Semicolon;
     static const Token Short;
     static const Token Signed;
     static const Token Sizeof;
     static const Token Static;
     static const Token Struct;
+    static const Token Sub;
+    static const Token SubEq;
     static const Token Switch;
     static const Token Typedef;
     static const Token Union;
