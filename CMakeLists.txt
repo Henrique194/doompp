@@ -7,6 +7,8 @@ set(PACKAGE_COPYRIGHT "Copyright (C) 2025-${CURRENT_YEAR}")
 set(PACKAGE_LICENSE "GNU General Public License, version 3")
 set(CONFIG_H_IN "${CMAKE_SOURCE_DIR}/cmake/config.h.in")
 
+add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
+
 # Doom C Compiler
 add_subdirectory("src/dcc")
 # Doom++ Engine Executable

@@ -17,8 +17,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "config.h"
+#include "common/host.h"
+#include <SDL2/SDL_main.h>
 
-int main() {
+int main(int argc, char** argv) {
+    Host::run(argc, argv);
     return 0;
 }
